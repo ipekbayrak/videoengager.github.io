@@ -1,0 +1,163 @@
+body {
+	padding-top: 0px; padding-bottom: 0px;
+	/*background:url(Wallpaper_BAC.png)*/
+	background:#ffffff;
+}
+a {
+	color: #0079c0ff; text-decoration: none;
+}
+a:hover {
+	color: #0079c0ff !important; text-decoration: none !important;
+}
+a:focus {
+	color: #0079c0ff !important; text-decoration: none !important;
+}
+.body-content {
+	padding-right: 15px; padding-left: 15px;
+}
+input {
+	max-width: 280px;
+}
+select {
+	max-width: 280px;
+}
+textarea {
+	max-width: 280px;
+}
+.field-validation-error {
+	color: #0079c0ff;
+}
+.field-validation-valid {
+	display: none;
+}
+input.input-validation-error {
+	border: 1px solid #0079c0ff; border-image: none;
+}
+input[type='checkbox'].input-validation-error {
+	border: 0px currentColor; border-image: none;
+}
+.validation-summary-errors {
+	color: #0079c0ff;
+}
+.validation-summary-valid {
+	display: none;
+}
+#ImagenFondoPrincipal {
+	left: 0px; top: 0px; width: 100%; height: 100%; position: absolute; z-index: -5000;
+}
+#inicioVideoLlamada {
+	margin-top: 22px;
+    display: block;
+}
+.textoBlanco {
+	color: #0079c0ff; font-size: 35px; font-weight: bold; align-items: center; align-content: center;
+}
+@media (orientation: portrait) {
+    .logo {
+        margin-top: 20%;
+    }
+}
+
+.texto{
+	margin-top:20px;
+}
+.roundElement {
+	border-radius: 10px; border: 2px solid #0079c061; border-image: none;
+}
+.botonVideoLlamada {
+ text-align: center;
+ margin-top: 46px;
+ margin:0 auto;
+}
+.textoBlancoPequeno {
+	color: #0079c0ff; font-size: 20px; font-weight: bold; align-items: center; align-content: center;
+}
+.botonVideoLlamadaPequeno {
+	text-align: center;
+}
+.mensajeSaludo {
+	left: 700px; top: 160px; text-align: center;
+}
+#camaraLocal {
+	border-radius: 10px; border: 2px solid #0079c0ff; border-image: none; top: 10px; width: 100px; height: 62px; position: absolute;
+}
+#camaraRemota {
+	left: 3%; top: 3%; width: 95%; height: 85%; position: absolute; z-index: 0;
+}
+
+#slider1_container{
+	width:100% !important;
+	max-width: 470px !important;
+   position: absolute;
+   display: none;
+}
+
+.objetoInvisible{
+    display:none;
+}
+
+.objetoVisible{
+    display:block;
+}
+
+
+#myVideoHolder{
+	height: 100%;
+    padding-bottom: 45px;
+	width:100%;
+	position: absolute;
+	z-index:1		;
+}
+
+#closeVideoButtonHolder{
+	bottom: 0px;
+    height: 45px;
+    position: absolute;
+    width: 100%;
+    z-index: 10;
+    text-align: center;
+}
+
+#closeVideoButton{
+    height: 45px;
+}
+
+@media only screen and (min-width:419px){
+	.texto{
+		margin-top:10%;
+	}
+}
+@media only screen and (min-width:767px){
+	.texto{
+		margin-top:36%;
+	}
+	.logo {
+		margin-top: 50%;
+	}
+	.texto2 {
+		margin-top: 24%;
+	}
+}
+@media only screen and (min-width:979px){
+	.texto{
+		margin-top:36%;
+	}
+	.logo {
+		margin-top: 50%;
+	}
+	.texto2 {
+		margin-top: 24%;
+	}
+
+}
+@media (orientation: portrait) {
+	#myVideoHolder {
+		padding-bottom: 60px;
+	}
+	#closeVideoButton {
+		height: 60px;
+	}
+	#closeVideoButtonHolder {
+		height: 60px;
+	}
+}

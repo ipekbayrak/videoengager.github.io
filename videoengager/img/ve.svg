@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="74.604912mm"
+   height="20.794882mm"
+   viewBox="0 0 74.604912 20.794882"
+   version="1.1"
+   id="svg8"
+   sodipodi:docname="çizim.svg"
+   inkscape:version="1.0.2-2 (e86c870879, 2021-01-15)">
+  <defs
+     id="defs2">
+    <rect
+       x="38.175594"
+       y="168.57738"
+       width="215.06845"
+       height="82.398811"
+       id="rect870" />
+    <rect
+       x="38.175594"
+       y="168.57738"
+       width="215.06845"
+       height="82.398811"
+       id="rect870-1" />
+    <rect
+       x="38.175594"
+       y="168.57738"
+       width="215.06845"
+       height="82.398811"
+       id="rect934" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.979899"
+     inkscape:cx="167.87122"
+     inkscape:cy="148.6115"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     inkscape:document-rotation="0"
+     showgrid="false"
+     inkscape:window-width="1285"
+     inkscape:window-height="1040"
+     inkscape:window-x="182"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Katman 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-511.66915,-237.09414)">
+    <g
+       id="g923"
+       transform="matrix(0.98182359,0,0,0.98182359,474.58452,81.859457)"
+       style="stroke-width:1.01851">
+      <text
+         xml:space="preserve"
+         id="text868"
+         style="font-style:normal;font-weight:normal;font-size:10.5833px;line-height:0;font-family:sans-serif;letter-spacing:-0.611188px;word-spacing:-0.817563px;white-space:pre;shape-inside:url(#rect870-1);fill:#3399cc;fill-opacity:1;stroke:none;stroke-width:1.01851;"><tspan
+           x="38.175781"
+           y="176.57177"><tspan
+             style="line-height:9.5px;fill:#3399cc;fill-opacity:1;stroke-width:1.01851">Video</tspan><tspan
+             style="font-weight:bold;font-size:11.2889px;line-height:9.5px;fill:#3399cc;fill-opacity:1;stroke-width:1.01851">Engager</tspan></tspan></text>
+      <path
+         style="fill:#3399cc;fill-opacity:1;stroke-width:1.01851"
+         d="m 58.163901,168.78172 -0.647615,-1.12525 -1.401305,-0.0823 -1.401309,-0.0823 -0.07679,-4.69167 -0.07681,-4.69167 h 4.635181 4.635181 l -0.07679,4.69167 -0.07681,4.69167 -1.265017,0.0828 -1.265017,0.0828 -0.555626,1.03769 -0.714786,1.22338 -1.064887,-0.0102 v 0 z m 2.070951,-0.73843 0.759497,-1.25159 h 1.131172 1.131175 v -4.20899 l 0.06394,-4.1024 v 0 l -8.326863,0.0486 0.03066,8.2364 v 0 l 1.233081,0.0267 h 1.41876 l 0.759498,1.25157 0.759493,1.2516 h 0.140049 0.140047 z m -3.700534,-5.03293 v -1.82063 h 2.240793 2.240793 v 0.47616 0.47617 l 0.336118,-0.33612 0.336119,-0.33614 h 0.364128 0.364131 v 1.68062 1.68059 h -0.224081 -0.224078 l -0.371132,-0.35013 -0.371132,-0.35014 -0.128386,0.35014 -0.128386,0.35013 h -2.21745 -2.217452 z"
+         id="path862"
+         sodipodi:nodetypes="ccccccccccccccccccccccccccccccccccccccccccccccccccccccc" />
+    </g>
+  </g>
+</svg>
