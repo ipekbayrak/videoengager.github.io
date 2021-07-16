@@ -57,6 +57,45 @@ window._genesys.widgets = {
                         }
                   }
             },
+            form: {
+                                wrapper: "<table role='none'>",
+                                inputs: [
+                                    {
+                                        id: "cx_sendmessage_form_firstname",
+                                        name: "firstname",
+                                        maxlength: "100",
+                                        placeholder: "@i18n:sendmessage.PlaceholderFirstName",
+                                        label: "@i18n:sendmessage.FirstName",
+                                        autofocus: !0,
+                                        "aria-required": !0,
+                                    },
+                                    { id: "cx_sendmessage_form_lastname", name: "lastname", maxlength: "100", placeholder: "@i18n:sendmessage.PlaceholderLastName", label: "@i18n:sendmessage.LastName", "aria-required": !0 },
+                                    { id: "cx_sendmessage_form_email", type: "email", name: "email", maxlength: "100", placeholder: "@i18n:sendmessage.PlaceholderEmail", label: "@i18n:sendmessage.Email", "aria-required": !0 },
+                                    { id: "cx_sendmessage_form_subject", name: "subject", maxlength: "100", placeholder: "@i18n:sendmessage.PlaceholderSubject", label: "@i18n:sendmessage.Subject", "aria-required": !0 },
+                                    { id: "cx_sendmessage_form_messagebody", type: "textarea", name: "messagebody", placeholder: "@i18n:sendmessage.PlaceholderTypetexthere", label: !1, "aria-required": !0 },
+                                    // to add custom fields to web chat
+                                    { value:"TEST", id: "cx_webchat_form_customField2", name: "customField2", maxlength: "100", placeholder: "TEST TEST", label: "TEST" },
+                                    { value:"Subject",  id: "cx_webchat_form_customFieldLabel2", name: "customField2Label", maxlength: "100", placeholder: "", label: !1, style:"display:none" },
+                                    { value:"TEST",  id: "cx_webchat_form_customField1", name: "customField1", maxlength: "100", placeholder: "Test 2", label: "Test 2" },
+                                    { value:"BRAND NEW CUSTOM FIELD",  id: "cx_webchat_form_customFieldLabel1", name: "customField1Label", maxlength: !1, placeholder: !1, label: !1, style:"display:none"},
+                                    {
+                                          "id": "cx_webchat_form_language",
+                                          "name": "language",
+                                          "maxlength": "100",
+                                          "placeholder": "Optional",
+                                          "label": "Language",
+                                          "type":"select",
+                                                "options":[ 
+                                                {
+                                                      "text": "English", "value": "[DEV] - English"
+                                                },
+                                                {
+                                                      "text": "Bilingual", "value": "[DEV] - Bilingual"
+                                                }
+                                                ]
+                                    },
+                                ],
+                            },
             cometD: {
                   enabled: false,
 
@@ -194,19 +233,6 @@ document.addEventListener('VideoEngagerReady', function (e) {
 			background-attachment: fixed;
 			background-position: center;
         } 
-
-        .cx-control-label[for=cx_webchat_form_customFieldLabel2] {
-              display: none;
-        }
-        #cx_webchat_form_customFieldLabel2{
-              display: none;
-        } 
-        .cx-control-label[for=cx_webchat_form_customFieldLabel1] {
-              display: none;
-        }
-        #cx_webchat_form_customFieldLabel1{
-              display: none;
-        }
       </style>
         		
     </head>
