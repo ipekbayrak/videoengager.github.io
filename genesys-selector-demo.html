@@ -16,7 +16,6 @@ window._genesys.widgets = {
             debug: true,
             theme: "light",
             lang: "en",
-            customStylesheetID: "genesys_widgets_custom",
             plugins: [
                   "cx-webchat",
                   "cx-webchat-service",
@@ -28,7 +27,17 @@ window._genesys.widgets = {
                   "cx-callback",
                   "cx-calendar",
                   "cx-sidebar"
-            ]
+            ],
+            i18n : { //custom localization for VideoEngager Video Chat form
+                  "en_videochat": {
+                        "webchat":  {
+                              "ChatFormSubmit": "Start Video",
+                              "WebChatTitle": "Video Chat",
+                              "WebChatName": "Video Chat",
+                              "ChatTitle": "Video Chat",
+                        }
+                  }
+            },
       },
       webchat: {
             transport: {
@@ -42,9 +51,20 @@ window._genesys.widgets = {
                               targetAddress: 'TestQueue',
                               priority: 2
                         }
-                  }
-            },/*
-            transport: {
+                  },
+                  chatButton: {
+                        enabled: true,
+                        template: '<div class="cx-widget cx-webchat-chat-button cx-side-button" role="button" ' +
+                        'tabindex="0" data-message="ChatButton" data-gcb-service-node="true"><span class="cx-icon" data-icon="chat">' +
+                        '</span><span class="i18n cx-chat-button-label" data-message="ChatButton"></span></div>',
+                        effect: 'fade',
+                        openDelay: 1000,
+                        effectDuration: 300,
+                        hideDuringInvite: true
+                  },
+                  
+            },
+            /*transport: {
                   type: 'purecloud-v2-sockets',
                   dataURL: 'https://api.mypurecloud.com.au',
                   deploymentKey : 'c2eaaa5c-d755-4e51-9136-b5ee86b92af3',
@@ -70,22 +90,7 @@ window._genesys.widgets = {
                     { value:"Subject",  id: "cx_webchat_form_customFieldLabel2", name: "customField2Label", maxlength: "100", placeholder: "", label: !1, style:"display:none" },
                     { value:"TEST",  id: "cx_webchat_form_customField1", name: "customField1", maxlength: "100", placeholder: "Test 2", label: "Test 2" },
                     { value:"BRAND NEW CUSTOM FIELD",  id: "cx_webchat_form_customFieldLabel1", name: "customField1Label", maxlength: !1, placeholder: !1, label: !1, style:"display:none"},
-                    {
-                          "id": "cx_webchat_form_language",
-                          "name": "language",
-                          "maxlength": "100",
-                          "placeholder": "Optional",
-                          "label": "Language",
-                          "type":"select",
-                                "options":[ 
-                                {
-                                      "text": "English", "value": "[DEV] - English"
-                                },
-                                {
-                                      "text": "Bilingual", "value": "[DEV] - Bilingual"
-                                }
-                                ]
-                    },
+                    { "id": "cx_webchat_form_language", "name": "language", "maxlength": "100", "placeholder": "Optional", "label": "Language", "type":"select", "options":[ { "text": "English", "value": "[DEV] - English" }, { "text": "Bilingual", "value": "[DEV] - Bilingual" } ] },
                 ],
             },
             cometD: {
@@ -137,7 +142,15 @@ window._genesys.widgets = {
                                availabilityThresholdMin: 300,
                                availabilityThresholdMax: 3600,
                                hideChannelWhenThresholdMax: false
-                         }
+                         },
+                        onClick: function($, CXBus, Common) {
+				      oVideoEngager.command('App.setLanguage', {lang: 'en'}).done(function(e){
+					      //set language to default 
+                                    _genesys.widgets.bus.command('WebChat.open');
+                              }).fail(function(e){
+                                    // App failed to set language
+                              });
+			      }
                    },
             ]
       },

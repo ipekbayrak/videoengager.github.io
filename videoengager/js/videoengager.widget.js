@@ -93,43 +93,13 @@ var VideoEngager = function () {
 		
 			var getGuid = function () {
 				function s4() {
-					return Math.floor((1 + Math.random()) * 0x10000)
-							.toString(16)
-							.substring(1);
+					return Math.floor((1 + Math.random()) * 0x10000) .toString(16) .substring(1);
 				}
-				return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-						s4() + '-' + s4() + s4() + s4();
+				return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
 			}
 
-			var getCookie = function (name) {
-				var pattern = RegExp(name + "=.[^;]*");
-				var matched = document.cookie.match(pattern);
-				if (matched) {
-					var cookie = matched[0].split('=');
-					var cooki = decodeURIComponent(cookie[1]).replace(/"/g, "");
-					return cooki;
-				}
-				return null;
-			};
-
-			var setCookie = function (name, value, hour) {
-				var cookieName = name;
-				var cookieValue = value;
-				var d = new Date();
-				var time = d.getTime();
-				var expireTime = time + 1000 * 60 * 60 * parseInt(hour);
-				d.setTime(expireTime);
-				if (hour) {
-					document.cookie = cookieName + "=" + cookieValue + ";expires=" + d.toGMTString() + ";path=/";
-				} else {
-					document.cookie = cookieName + "=" + cookieValue + ";path=/";
-				}
-			}
-
-			// = getCookie('interactionId');
 			if (interactionId == undefined) {
 				interactionId = getGuid();
-				setCookie('interactionId', interactionId, 24);
 			}
 			console.log("InteractionId :", interactionId);
 			startWithVideo = startWithVideo.toString();
@@ -190,7 +160,8 @@ var VideoEngager = function () {
 				oVideoEngager.command('WebChatService.sendMessage',{message:message})
 				.done(function (e) {
 					console.log("send message success:" +message);
-				}).fail(function(e) {
+				})
+				.fail(function(e) {
 					console.log("fail to send message: "+message);
 				});
 			}
@@ -198,32 +169,32 @@ var VideoEngager = function () {
 			window.removeEventListener('message', function (e) {});
 			window.addEventListener('message', function (event) {
 				if (event.data.type === 'popupClosed') {
-					oVideoEngager.command('WebChatService.endChat').done(function (e) {
+					oVideoEngager.command('WebChatService.endChat')
+					.done(function (e) {
 						console.log('WebChatService.endChat');
-					}).fail(function (e) {
+					})
+					.fail(function (e) {
 						console.log('WebChatService.endChat failed');
 					});
 				}
 			});
-			
 		};	 
 
 		window._genesys.widgets.onReady = function(oCXBus){
 			console.log('[CXW] Widget bus has been initialized!');
-			var oWCC = oCXBus;
 			oCXBus.command('WebChatService.registerPreProcessor', {preprocessor: function(oMessage){
 				if (oMessage.text && oMessage.text.indexOf(veUrl) != -1) { 
 					var url = oMessage.text;
 					oMessage.html = true;
 					oMessage.text = 'Please press button to start video:<br><br><button type="button" class="cx-btn cx-btn-primary i18n" onclick="startVideoEngager(\'' + url + '\');">Start video</button>';
-					
 					return oMessage;
 				}
-			}}
-			).done(function(e){
+			}})
+			.done(function(e){
 				console.log('VE WebChatService.registerPreProcessor');
-			}).fail(function(e){
-				console.log('failed to regsiter preprocessor');
+			})
+			.fail(function(e){
+				console.error('failed to regsiter preprocessor');
 			});
 		};
 
@@ -265,17 +236,19 @@ var VideoEngager = function () {
 			oVideoEngager.registerCommand("WebChatService.startChat", function (e) {
 				console.log("WebChatService.startChat triggered"); 
 			});
-
-			oVideoEngager.subscribe("WebChatService.agentConnected", function (e) {
-				console.log('WebChatService.agentConnected');
-			});
 			
 			oVideoEngager.registerCommand("startVideo", function (e) {
 				//videochat channel is selected
 				console.log("startVideoTriggered");
 				startWithVideo = true;
-				initiateToaster();
-				//startVideoChat();
+
+				//set language to change form language for videoengagar video chat
+				oVideoEngager.command('App.setLanguage', {lang: 'en_videochat'}).done(function(e){
+					// App set language successfully started
+					initiateToaster();
+				}).fail(function(e){
+					// App failed to set language
+				});
 			});
 			
 			oVideoEngager.registerCommand("endCall", function (e) {
@@ -295,7 +268,6 @@ var VideoEngager = function () {
 
 			oVideoEngager.registerCommand("startAudio", function (e) {
 				startWithVideo = false;
-				//videoEngagerChat();
 			});
 			
 			oVideoEngager.subscribe("WebChatService.ended", function(){
@@ -320,6 +292,11 @@ var VideoEngager = function () {
 				startVideoChat();
 			});
 			oVideoEngager.ready();
+
+			//terminate call on page close
+			window.onbeforeunload = function(){
+				terminateCall();
+			}
 		};
 		
 		var messageHandler = function (e) {
