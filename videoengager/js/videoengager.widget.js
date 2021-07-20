@@ -243,7 +243,8 @@ var VideoEngager = function () {
 				startWithVideo = true;
 
 				//set language to change form language for videoengagar video chat
-				oVideoEngager.command('App.setLanguage', {lang: 'en_videochat'}).done(function(e){
+				var default_lang = window._genesys.widgets.main.lang;
+				oVideoEngager.command('App.setLanguage', {lang: default_lang + "_videochat"}).done(function(e){
 					// App set language successfully started
 					initiateToaster();
 				}).fail(function(e){
