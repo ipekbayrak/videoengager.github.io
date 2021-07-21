@@ -1,4 +1,4 @@
-var popupinstance;
+var popupinstance = null;
 var iframeHolder = null;
 var iframeInstance;
 var oVideoEngager;
@@ -147,7 +147,7 @@ var VideoEngager = function () {
 				iframeHolder.style.display = 'block';
 			}
 
-			sendInteractionMessage(interactionId)
+			sendInteractionMessage(interactionId);
 			
 			window.removeEventListener('message', function (e) {});
 			window.addEventListener('message', function (event) {
@@ -209,7 +209,6 @@ var VideoEngager = function () {
 			});
 			
 			oVideoEngager.registerCommand("endCall", function (e) {
-				window._genesys.cxwidget.bus.command("Toaster.close");
 				oVideoEngager.command('WebChatService.endChat');
 				closeIframeOrPopup();
 			});
