@@ -1,10 +1,5 @@
-var popupinstance = null;
-var iframeHolder = null;
+var popupinstance;
 var iframeInstance;
-var oVideoEngager;
-var finalUserData = {};
-var interactionId;
-
 var startVideoEngager = function(url) {
 	var left = (screen.width/2)-(770/2);
 	var top = (screen.height/2)-(450/2);
@@ -13,34 +8,44 @@ var startVideoEngager = function(url) {
 	}
 	popupinstance.focus();
 };
-
-var closeIframeOrPopup = function(){
-	if (!iframeHolder) {
-		if (popupinstance) {
-			popupinstance.close();
-		}
-		popupinstance = null;
-	} else {
-		iframeHolder.removeChild(iframeHolder.getElementsByTagName('iframe')[0]);
-		iframeHolder.style.display = 'none';
-	}
-}
-
+var oVideoEngager;
+var finalUserData = {};
 var VideoEngager = function () {
 	this.init = function (callHolder, platform, tenantId, veUrl, formData, userData, audioOnly, autoAccept, hideChat) {
 		var TENANT_ID = tenantId;
 		var startWithVideo = (audioOnly) ? !audioOnly : true;
 		autoAccept = (autoAccept) ? autoAccept : true;
 		hideChat = (hideChat) ? hideChat : true;
-		
+		var iframeHolder = null;
 		if (callHolder) {
 			iframeHolder = document.getElementById(callHolder);
 			if (!iframeInstance) {
 				console.log("iframe holder is passing, but not found: " + callHolder);
 			}
 		}
+		var firstName = (formData.firstName) ? formData.firstName : '';
+		var lastName = (formData.lastName) ? formData.lastName : '';
+		var autoSubmit = (formData.autoSubmit) ? formData.autoSubmit : false;
+		var email = (formData.email) ? formData.email : '';
+		var message = (formData.message) ? formData.message : '';
+		var custom = (formData.custom) ? formData.custom : '';
+		var subject = (formData.subject) ? formData.subject : '';
+		var form = formData; 
+		var interactionId;
 
-		var terminateInteraction = function(){
+		var closeIframeOrPopup = function(){
+			if (!iframeHolder) {
+				if (popupinstance) {
+					popupinstance.close();
+				}
+				popupinstance = null;
+			} else {
+				iframeHolder.removeChild(iframeHolder.getElementsByTagName('iframe')[0]);
+				iframeHolder.style.display = 'none';
+			}
+		}
+
+		var terminateCall = function(){
 			//close toaster and terminate the call
 			oVideoEngager.command('WebChat.endChat')
 			.done(function(e){
@@ -51,20 +56,7 @@ var VideoEngager = function () {
 			});
 		}
 
-		var sendInteractionMessage = function(interactionId){
-			if (platform == 'purecloud') {
-				var message = '{"interactionId": "'+ interactionId+'", "displayName": "displayName","firstName": "First", "lastName": "Second"}';
-				oVideoEngager.command('WebChatService.sendMessage',{message:message})
-				.done(function (e) {
-					console.log("send message success:" +message);
-				})
-				.fail(function(e) {
-					console.log("fail to send message: "+message);
-				});
-			}
-		}
-
-		var initiateForm = function(){
+		var initiateToaster = function(){
 			var fieldDefinition = {
 				wrapper: "<table></table>",
 					inputs: [
@@ -109,7 +101,6 @@ var VideoEngager = function () {
 			if (interactionId == undefined) {
 				interactionId = getGuid();
 			}
-
 			console.log("InteractionId :", interactionId);
 			startWithVideo = startWithVideo.toString();
 			var left = (screen.width / 2) - (770 / 2);
@@ -147,7 +138,33 @@ var VideoEngager = function () {
 				iframeHolder.style.display = 'block';
 			}
 
-			sendInteractionMessage(interactionId);
+			finalUserData = {}
+			if (userData) {
+				for (var key in userData) { 
+					finalUserData[key] = userData[key]; 
+				}
+			}
+			
+			//to add custom fields to video chat
+			finalUserData['firstName'] = firstName;
+			finalUserData['lastName'] = lastName;
+			finalUserData['email'] = email;
+			finalUserData['veVisitorId'] = interactionId;
+			finalUserData['customField1'] = custom;
+			finalUserData['customField1Label'] = "CUSTOM HEADER";
+			finalUserData['customField2'] = message;
+			finalUserData['customField2Label'] = "Subject";
+
+			if (platform == 'purecloud') {
+				var message = '{"interactionId": "'+ interactionId+'", "displayName": "displayName","firstName": "First", "lastName": "Second"}';
+				oVideoEngager.command('WebChatService.sendMessage',{message:message})
+				.done(function (e) {
+					console.log("send message success:" +message);
+				})
+				.fail(function(e) {
+					console.log("fail to send message: "+message);
+				});
+			}
 			
 			window.removeEventListener('message', function (e) {});
 			window.addEventListener('message', function (event) {
@@ -188,8 +205,37 @@ var VideoEngager = function () {
 
 		window._genesys.widgets.extensions["VideoEngager"] = function ($, CXBus, Common) {
 			console.log("on init extension VideoEngager");
+
 			oVideoEngager = CXBus.registerPlugin("VideoEngager");
 			oVideoEngager.publish("ready"); 
+
+			oVideoEngager.registerCommand("VideoEngagerStartVideo", function(e){
+				console.log('VideoEngagerStartVideo registered' );
+			});
+
+			oVideoEngager.subscribe("Callback.opened", function(){
+				console.log('custom Callback.opened');
+			});
+			
+			oVideoEngager.subscribe("WebChat.opened", function(){
+				console.log('custom WebChat.opened');
+			});		
+
+			oVideoEngager.subscribe("WebChat.open", function(){ 
+				console.log('custom WebChat.open?');
+			});					
+			
+			oVideoEngager.subscribe("SendMessage.opened", function(){
+				console.log('custom SendMessage.opened');
+			});	
+
+			oVideoEngager.subscribe("WebChatService.startChat", function(){ 
+				console.log("kapan start");
+			});	
+
+			oVideoEngager.registerCommand("WebChatService.startChat", function (e) {
+				console.log("WebChatService.startChat triggered"); 
+			});
 			
 			oVideoEngager.registerCommand("startVideo", function (e) {
 				//videochat channel is selected
@@ -197,34 +243,49 @@ var VideoEngager = function () {
 				startWithVideo = true;
 
 				//set language to change form language for videoengagar video chat
-				var default_lang = window._genesys.widgets.main.lang;
-				oVideoEngager.command('App.setLanguage', {lang: default_lang + "_videochat"})
-				.done(function(e){
+				oVideoEngager.command('App.setLanguage', {lang: 'en_videochat'}).done(function(e){
 					// App set language successfully started
-					initiateForm();
-				})
-				.fail(function(e){
+					initiateToaster();
+				}).fail(function(e){
 					// App failed to set language
 				});
 			});
 			
 			oVideoEngager.registerCommand("endCall", function (e) {
+				window._genesys.cxwidget.bus.command("Toaster.close");
 				oVideoEngager.command('WebChatService.endChat');
-				closeIframeOrPopup();
+
+				if (!iframeHolder) {
+					if (popupinstance) {
+						popupinstance.close();
+					}
+					popupinstance = null;
+				} else {
+					iframeHolder.removeChild(iframeHolder.getElementsByTagName('iframe')[0]);
+					iframeHolder.style.display = 'none';
+				}
 			});
 
 			oVideoEngager.registerCommand("startAudio", function (e) {
-				startWithVideo = false;var default_lang = window._genesys.widgets.main.lang;
-				oVideoEngager.command('App.setLanguage', {lang: default_lang + "_videochat"})
-				.done(function(e){
-					initiateForm();
-				});
+				startWithVideo = false;
 			});
 			
 			oVideoEngager.subscribe("WebChatService.ended", function(){
 				console.log('WebChatService.ended');
 				closeIframeOrPopup();
 			});			
+			
+			oVideoEngager.subscribe("WebChatService.messageReceived", function(msg){
+				console.log('custom WebChatService.messageReceived', msg);
+			});
+			
+			oVideoEngager.subscribe("SendMessage.opened", function(){
+				console.log('custom SendMessage.opened');
+			});				
+
+			oVideoEngager.subscribe("SendMessageService.messageSent", function(e){
+				console.log('SendMessageService.messageSent', e);
+			});
 			
 			oVideoEngager.subscribe("WebChatService.started", function(){
 				console.log('WebChatService.started');
@@ -234,17 +295,17 @@ var VideoEngager = function () {
 
 			//terminate call on page close
 			window.onbeforeunload = function(){
-				terminateInteraction();
+				terminateCall();
 			}
 		};
 		
 		var messageHandler = function (e) {
 			console.log('messageHandler', e.data);
 			if (e.data.type === 'popupClosed') {
-				terminateInteraction();
+				terminateCall();
 			}
 			if (e.data.type === 'callEnded') {
-				terminateInteraction();
+				terminateCall();
 			}
 		};
 		
