@@ -22,14 +22,133 @@ var VideoEngager = function () {
 				console.log("iframe holder is passing, but not found: " + callHolder);
 			}
 		}
-		var firstName = (formData.firstName) ? formData.firstName : '';
-		var lastName = (formData.lastName) ? formData.lastName : '';
-		var autoSubmit = (formData.autoSubmit) ? formData.autoSubmit : false;
-		var email = (formData.email) ? formData.email : '';
-		var message = (formData.message) ? formData.message : '';
-		var subject = (formData.subject) ? formData.subject : '';
-		var form = formData;
-		var oVideoEngager;
+
+		var terminateInteraction = function(){
+			//close toaster and terminate the call
+			oVideoEngager.command('WebChat.endChat')
+			.done(function(e){
+				oVideoEngager.command('WebChat.close');
+			})
+			.fail(function(e){
+				//
+			});
+		}
+
+		var sendInteractionMessage = function(interactionId){
+			if (platform == 'purecloud') {
+				var message = '{"interactionId": "'+ interactionId+'", "displayName": "displayName","firstName": "First", "lastName": "Second"}';
+				oVideoEngager.command('WebChatService.sendMessage',{message:message})
+				.done(function (e) {
+					console.log("send message success:" +message);
+				})
+				.fail(function(e) {
+					console.log("fail to send message: "+message);
+				});
+			}
+		}
+
+		var initiateForm = function(){
+			var fieldDefinition = {
+				wrapper: "<table></table>",
+					inputs: [
+						{ name: "firstname", maxlength: "100", placeholder: "FirstName", label: "FirstName", autofocus: !0, "aria-required": !0 },
+						{ name: "lastname", maxlength: "100", placeholder: "LastName", label: "LastName", "aria-required": !0 },
+						{ type: "email", name: "email", maxlength: "100", placeholder: "Email", label: "Email", "aria-required": !0 },
+						// to add custom fields to web chat
+						{ value:"", name: "customField2", maxlength: "100", placeholder: "Cust", label: "Subject" },
+						{ value:"Subject", name: "customField2Label", maxlength: "100", placeholder: "", label: !1, style:"display:none" },
+						{ value:"", name: "customField1", maxlength: "100", placeholder: "Test 2", label: "BRAND NEW CUSTOM FIELD" },
+						{ value:"BRAND NEW CUSTOM FIELD", name: "customField1Label", maxlength: !1, placeholder: !1, label: !1, style:"display:none"},
+					]
+			};
+
+			oVideoEngager.command('WebChat.open', {
+				userData: {},
+				//prefill values
+				form: {/*
+					autoSubmit: false,
+					firstname: 'John',
+					lastname: 'Smith',
+					email: 'John@mail.com',
+					subject: 'Customer Satisfaction'
+					*/
+				},
+				formJSON: fieldDefinition,
+				markdown: false
+			}).done(function (e2) {
+				// form opened 
+				document.getElementsByClassName("cx-submit")[0].addEventListener("click", function(){
+					startVideoChat();
+				})				
+			});
+		}
+
+		var startVideoChat = function() {
+		
+			var getGuid = function () {
+				function s4() {
+					return Math.floor((1 + Math.random()) * 0x10000) .toString(16) .substring(1);
+				}
+				return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+			}
+
+			if (interactionId == undefined) {
+				interactionId = getGuid();
+			}
+
+			console.log("InteractionId :", interactionId);
+			startWithVideo = startWithVideo.toString();
+			var left = (screen.width / 2) - (770 / 2);
+			var top = (screen.height / 2) - (450 / 2);
+			var str = {
+				"video_on": startWithVideo, 
+				"sessionId": interactionId, 
+				"hideChat": hideChat, 
+				"type": "initial", 
+				"defaultGroup": "floor", 
+				"view_widget": "4", 
+				"offline": true, 
+				"aa": autoAccept, 
+				skip_private: true,
+				"inichat": "false"
+			};
+	
+			var encodedString = window.btoa(JSON.stringify(str));
+			var homeURL = veUrl + '/static/';
+			var url = homeURL + 'popup.html?tennantId=' + window.btoa(TENANT_ID) + '&params=' + encodedString;
+			
+			if (!iframeHolder) {
+				if (!popupinstance) {
+					popupinstance = window.open(url, "popup_instance", "width=770, height=450, left=" + left + ", top=" + top + ", location=no, menubar=no, resizable=yes, scrollbars=no, status=no, titlebar=no, toolbar = no");
+				}
+				popupinstance.focus();
+			} else {
+				iframeInstance = document.createElement('iframe');
+				iframeInstance.width = "100%"
+				iframeInstance.height = "100%"
+				iframeInstance.id = "videoengageriframe"
+				iframeInstance.allow = "microphone; camera"
+				iframeInstance.src = url;
+				iframeHolder.insertBefore(iframeInstance, iframeHolder.firstChild);
+				iframeHolder.style.display = 'block';
+			}
+
+			
+			
+			window.removeEventListener('message', function (e) {});
+			window.addEventListener('message', function (event) {
+				if (event.data.type === 'popupClosed') {
+					oVideoEngager.command('WebChatService.endChat')
+					.done(function (e) {
+						console.log('WebChatService.endChat');
+					})
+					.fail(function (e) {
+						console.log('WebChatService.endChat failed');
+					});
+				}
+			});
+		};	 
+
 		window._genesys.widgets.onReady = function(oCXBus){
 
 			console.log('[CXW] Widget bus has been initialized!');
@@ -331,7 +450,9 @@ var VideoEngager = function () {
 			
 			oVideoEngager.subscribe("WebChatService.started", function(){
 				console.log('WebChatService.started');
+				sendInteractionMessage(interactionId);
 			});
+			
 			oVideoEngager.ready();
 		};
 
