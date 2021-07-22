@@ -53,8 +53,8 @@ var VideoEngager = function () {
 
 		var sendInteractionMessage = function(interactionId){
 			if (platform == 'purecloud') {
-				var message = '{"interactionId": "'+ interactionId+'", "displayName": "displayName","firstName": "First", "lastName": "Second"}';
-				oVideoEngager.command('WebChatService.sendMessage',{message:message})
+				var message = {interactionId:  interactionId, displayName: "displayName",firstName: "First", lastName: "Second"};
+				oVideoEngager.command('WebChatService.sendMessage',{message:JSON.stringify(message)})
 				.done(function (e) {
 					console.log("send message success:" +message);
 				})
