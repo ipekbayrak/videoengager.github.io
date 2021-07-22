@@ -14,6 +14,7 @@ var startVideoEngager = function(url) {
 };
 
 var closeIframeOrPopup = function(){
+	interactionId = null;
 	if (!iframeHolder) {
 		if (popupinstance) {
 			popupinstance.close();
@@ -52,7 +53,10 @@ var VideoEngager = function () {
 
 		var sendInteractionMessage = function(interactionId){
 			if (platform == 'purecloud') {
-				var message = {interactionId:  interactionId, displayName: "displayName",firstName: "First", lastName: "Second"};
+				var firstname = $("#form_firstname").val() ? $("#form_firstname").val() : "First";
+				var lastName = $("#form_lastname").val() ? $("#form_lastname").val() : "Last";
+				var email = $("#form_email").val() ? $("#form_email").val() : "test@test";
+				var message = {interactionId:  interactionId, email: email, firstName: firstname, lastName: lastName};
 				oVideoEngager.command('WebChatService.sendMessage',{message:JSON.stringify(message)})
 				.done(function (e) {
 					console.log("send message success:" +message);
@@ -67,9 +71,9 @@ var VideoEngager = function () {
 			var fieldDefinition = {
 				wrapper: "<table></table>",
 					inputs: [
-						{ name: "firstname", maxlength: "100", placeholder: "FirstName", label: "FirstName", autofocus: !0, "aria-required": !0 },
-						{ name: "lastname", maxlength: "100", placeholder: "LastName", label: "LastName", "aria-required": !0 },
-						{ type: "email", name: "email", maxlength: "100", placeholder: "Email", label: "Email", "aria-required": !0 },
+						{ id:"form_firstname", name: "firstname", maxlength: "100", placeholder: "FirstName", label: "FirstName", autofocus: !0, "aria-required": !0 },
+						{ id:"form_lastname", name: "lastname", maxlength: "100", placeholder: "LastName", label: "LastName", "aria-required": !0 },
+						{ id:"form_email", type: "email", name: "email", maxlength: "100", placeholder: "Email", label: "Email", "aria-required": !0 },
 						// to add custom fields to web chat
 						{ value:"", name: "customField2", maxlength: "100", placeholder: "Cust", label: "Subject" },
 						{ value:"Subject", name: "customField2Label", maxlength: "100", placeholder: "", label: !1, style:"display:none" },
@@ -228,7 +232,10 @@ var VideoEngager = function () {
 			
 			oVideoEngager.subscribe("WebChatService.started", function(){
 				console.log('WebChatService.started');
-				sendInteractionMessage(interactionId);
+				if (interactionId != null){
+					sendInteractionMessage(interactionId);
+				}
+				
 			});
 			
 			oVideoEngager.ready();
