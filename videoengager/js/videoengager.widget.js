@@ -4,7 +4,6 @@ var iframeInstance;
 var oVideoEngager;
 var finalUserData = {};
 var interactionId;
-
 var startVideoEngager = function(url) {
 	var left = (screen.width/2)-(770/2);
 	var top = (screen.height/2)-(450/2);
@@ -149,8 +148,6 @@ var VideoEngager = function () {
 				iframeHolder.insertBefore(iframeInstance, iframeHolder.firstChild);
 				iframeHolder.style.display = 'block';
 			}
-
-			
 			
 			window.removeEventListener('message', function (e) {});
 			window.addEventListener('message', function (event) {

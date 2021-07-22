@@ -72,17 +72,7 @@
                                           targetAddress: 'TestQueue',
                                           priority: 2
                                     }
-                              },
-                              chatButton: {
-                                    enabled: true,
-                                    template: '<div class="cx-widget cx-webchat-chat-button cx-side-button" role="button" ' +
-                                          'tabindex="0" data-message="ChatButton" data-gcb-service-node="true"><span class="cx-icon" data-icon="chat">' +
-                                          '</span><span class="i18n cx-chat-button-label" data-message="ChatButton"></span></div>',
-                                    effect: 'fade',
-                                    openDelay: 1000,
-                                    effectDuration: 300,
-                                    hideDuringInvite: true
-                              },
+                              }
 
                               },
                               /*transport: {
@@ -248,10 +238,10 @@
                                           oVideoEngager.command('App.setLanguage', {
                                           lang: default_lang
                                           }).done(function(e) {
-                                          //set language to default 
-                                          _genesys.widgets.bus.command('WebChat.open');
+                                                //set language to default 
+                                                _genesys.widgets.bus.command('WebChat.open');
                                           }).fail(function(e) {
-                                          // App failed to set language
+                                                // App failed to set language
                                           });
                                     }
                               },
