@@ -42,6 +42,7 @@ var VideoEngager = function () {
 
 		var terminateInteraction = function(){
 			//close toaster and terminate the call
+			interactionId = null;
 			oVideoEngager.command('WebChat.endChat')
 			.done(function(e){
 				oVideoEngager.command('WebChat.close');
