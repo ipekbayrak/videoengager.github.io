@@ -120,7 +120,7 @@ var VideoEngager = function () {
 
 	var initiateForm = function() {
 		var webChatOpenData = {
-			userData: {},
+			userData: {veVisitorId:interactionId},
 			//prefill values
 			form: {/*
 				autoSubmit: false,
