@@ -5,6 +5,7 @@
   "main": "app.js",
   "scripts": {
 	    "start" : "node server.js",
+		"webdriver": "node node_modules/protractor/bin/webdriver-manager update",
 	    "protractor": "npx protractor",
         "test": "npm-run-all -p -r start protractor"
   },
