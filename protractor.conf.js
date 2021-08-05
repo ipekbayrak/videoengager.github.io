@@ -31,9 +31,9 @@ var config = {
   // https://code.google.com/p/selenium/source/browse/javascript/webdriver/capabilities.js
   capabilities: {
     'browserName': 'chrome',
+    'unexpectedAlertBehaviour': 'accept',
     'chromeOptions': { 
-      args: [ 
-	    "--headless",
+      args: [  
         "--disable-gpu", 
         "--window-size=800,600", 
         "--use-fake-ui-media-stream", 
@@ -74,6 +74,7 @@ var config = {
 if (process.env.TRAVIS) {
     config.capabilities = {
     'browserName': 'chrome',
+    'unexpectedAlertBehaviour': 'accept',
     'chromeOptions': { 
 		  args: [ 
 			"--headless",
