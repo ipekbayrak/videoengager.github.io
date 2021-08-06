@@ -23,6 +23,22 @@ var VideoEngager = function () {
 		}};
 	var form;
 
+	var httpRequest = function (url, jsonParam, HTTPRequestType, authToken,callback, failcallback) {
+		var xmlhttp = new XMLHttpRequest();
+		xmlhttp.open(HTTPRequestType, url);
+		xmlhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+		xmlhttp.setRequestHeader("authorization", "Bearer " + authToken);
+		xmlhttp.onerror = function(){
+			failcallback(xmlhttp);
+		}
+		xmlhttp.onload = function(){
+			if (xmlhttp.readyState === 4){
+				callback(JSON.parse(xmlhttp.responseText))
+			}
+		};
+		xmlhttp.send(jsonParam);
+	}
+
 	var init = function () {
 		var config = window._genesys.widgets.videoengager;
 		TENANT_ID = config.tenantId;
@@ -56,6 +72,26 @@ var VideoEngager = function () {
 
 	}
 
+	var startCalendar = function() {
+		oVideoEngager.command('Calendar.generate')
+		.done(function(e){
+			console.log(e);
+		})
+		.fail(function(e){
+			console.error("Calendar failed  : ", e);
+		});
+/*
+		oMyPlugin.command('Calendar.showAvailability', {date: '03/22/17'}).done(function(e){
+
+			// Calendar showed availability successfully
+		
+		}).fail(function(e){
+		
+			// Calendar failed to show availability
+		});
+		*/
+	}
+
 	this.initExtension = function ($, CXBus, Common) {
 
 		console.log("on init extension VideoEngager");
@@ -78,6 +114,109 @@ var VideoEngager = function () {
 			startVideoEngager()
 		});
 
+		oVideoEngager.registerCommand("startCalendar", function (e) {
+			startCalendar()
+		});
+
+		oVideoEngager.subscribe('Callback.opened', function(e){
+			var AuthToken = null;
+			var date = null;
+
+			//authenticate
+			var authURL = "https://staging.videoengager.com/api/partners/impersonate/b7abeb05-f821-cff8-0b27-77232116bf1d/639292ca-14a2-400b-8670-1f545d8aa860/slav@videoengager.com";
+			httpRequest(authURL, null,"GET", null, function(data){
+				AuthToken = data.token;;
+			}, function(xmlhttp){
+				debugger;
+
+				oVideoEngager.command('Callback.showOverlay', {
+
+					html: '<div>Something Went Wrong</div>'
+				
+				})
+			});
+
+			oVideoEngager.subscribe('Calendar.selectedDateTime', function(e){
+				date = e.data.date;
+			});
+
+			// to prevent onClose user confirmation dialog, remove events in inputs
+			document.querySelectorAll("input,textarea").forEach((e) => {
+				var new_element = e.cloneNode(true);
+				e.parentNode.replaceChild(new_element, e);
+			});
+
+			// to handle confirm button
+			var old_element = document.querySelector(".cx-callback-confirm");
+			var new_element = old_element.cloneNode(true);
+			old_element.parentNode.replaceChild(new_element, old_element);
+			new_element.addEventListener("click", function(e) {
+				e.preventDefault();
+				var url = "https://staging.videoengager.com/api/schedules/my?sendNotificationEmail"
+				var json =  JSON.stringify(
+					{"pin":"3936",
+					"date":date.getTime(),
+					"duration":30,
+					"pak":"b7abeb05-f821-cff8-0b27-77232116bf1d",
+					"visitor":{
+						"name":document.querySelector("#cx_form_callback_firstname").value,
+						"lastname":document.querySelector("#cx_form_callback_lastname").value,
+						"phone":document.querySelector("#cx_form_callback_phone_number").value,
+						"autoAnswer":true}
+					});
+
+				httpRequest(url, json,"POST", AuthToken, function(dataEmail){
+					var scheduleUrl = "https://staging.videoengager.com/api/schedules/my/";
+					if (date){
+						scheduleUrl += date.getTime()
+						scheduleUrl += "/"
+						scheduleUrl += (date.getTime() + ( 30 * 60 * 1000)) // add 30 min
+					}
+					httpRequest(scheduleUrl, null,"GET", AuthToken, function(dataSchedule){
+						
+						oVideoEngager.command('Callback.showOverlay', {
+
+							html: '<div>Your Meeting is set </div>'
+						
+						}).done(function(){
+		
+						});
+						
+					}, function(xmlhttp){
+						debugger;
+	
+				 
+					});
+					
+				}, function(xmlhttp){
+					debugger;
+
+			 
+				});
+			});
+		})
+
+ 
+		/*
+		oVideoEngager.subscribe('Calendar.generated', function(e){
+			oVideoEngager.command('Toaster.open', {
+				type: 'generic',
+				title: 'Toaster Title',
+				body: e.data.ndCalendar[0],
+				icon: 'chat',
+				controls: 'close',
+				immutable: true, 
+			}).done(function(e){
+				document.querySelectorAll(".cx-footer").forEach((e) => {
+					e.style.display = 'none';
+				});
+				// Toaster opened successfully
+			}).fail(function(e){
+				// Toaster failed to open properly
+			});
+		});
+		*/
+
 		oVideoEngager.registerCommand("endCall", function (e) {
 			oVideoEngager.command('WebChatService.endChat');
 			closeIframeOrPopup();
@@ -93,7 +232,6 @@ var VideoEngager = function () {
 			if (interactionId != null){
 				sendInteractionMessage(interactionId);
 			}
-			
 		});
 		
 		oVideoEngager.ready();

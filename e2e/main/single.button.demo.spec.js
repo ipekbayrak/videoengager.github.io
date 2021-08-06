@@ -66,7 +66,33 @@ var callEstablished = function(browser) {
     await browser2.get(url2);
     await browser2.driver.wait(callEstablished(browser2), 5000);
     await browser2.wait(async function() {
-      return await browser2.driver.executeScript("return (window.document.querySelector('#remoteVideo') && (window.document.querySelector('#remoteVideo').webkitDecodedFrameCount > 0))")
+      return await browser2.driver.executeScript(
+        "return (window.document.querySelector('#remoteVideo') && "+
+        "(window.document.querySelector('#remoteVideo').srcObject != null) && " +
+        "(window.document.querySelector('#localVideo') && " + 
+        "(window.document.querySelector('#localVideo').srcObject != null)")
+      .then(async function(result) {
+        if (result){
+          // frame > 0 case
+          console.log("result" + result);
+          //console.log("result" + await browser2.driver.executeScript("return window.document.querySelector('#remoteVideo').webkitDecodedFrameCount"));
+          return true;
+        } 
+        // null or frame < 0 case
+        console.log("false" + false);
+        return false;
+      } , function(err) {
+        //error case
+        //console.log("err" + err);
+        return false;
+      }); 
+    }, 30000);
+    await browser.wait(async function() {
+      return await browser.driver.executeScript(
+        "return (window.document.querySelector('#remoteVideo') && "+
+        "(window.document.querySelector('#remoteVideo').srcObject != null) && " +
+        "(window.document.querySelector('#localVideo') && " + 
+        "(window.document.querySelector('#localVideo').srcObject != null)")
       .then(async function(result) {
         if (result){
           // frame > 0 case
