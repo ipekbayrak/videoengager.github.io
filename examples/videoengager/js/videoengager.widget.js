@@ -120,7 +120,7 @@ var VideoEngager = function () {
 
 		oVideoEngager.subscribe('Callback.opened', function(e){
 			var AuthToken = null;
-			var date = null;
+			var date =  new Date();
 
 			//authenticate
 			var authURL = "https://staging.videoengager.com/api/partners/impersonate/b7abeb05-f821-cff8-0b27-77232116bf1d/639292ca-14a2-400b-8670-1f545d8aa860/slav@videoengager.com";
@@ -173,15 +173,33 @@ var VideoEngager = function () {
 						scheduleUrl += (date.getTime() + ( 30 * 60 * 1000)) // add 30 min
 					}
 					httpRequest(scheduleUrl, null,"GET", AuthToken, function(dataSchedule){
-						
-						oVideoEngager.command('Callback.showOverlay', {
 
-							html: '<div>Your Meeting is set </div>'
-						
-						}).done(function(){
-		
+						//send callback
+						var callbackURl = "http://localhost:9000/api/genesys/callback"
+						var callbackJSON = JSON.stringify({
+							callbackUserName: document.querySelector("#cx_form_callback_firstname").value,
+							customDataAttribute: "custom",
+							veUrl: dataSchedule[0].agent.meetingUrl,
+							callerId: document.querySelector("#cx_form_callback_phone_number").value,
+							callerIdName: document.querySelector("#cx_form_callback_firstname").value,
+							callbackScheduledTime: date.toISOString()
 						});
-						
+						httpRequest(callbackURl, callbackJSON, "POST", null, function(data){
+
+							oVideoEngager.command('Callback.showOverlay', {
+
+								html: '<div>Your Meeting is set </div><div><a href="'+dataSchedule[0].visitor.meetingUrl+'">click</a></div>'
+							
+							}).done(function(){
+			
+							});
+
+						},function(xmlhttp){
+							debugger;
+		
+					 
+						});
+
 					}, function(xmlhttp){
 						debugger;
 	
