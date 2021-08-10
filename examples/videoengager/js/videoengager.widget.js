@@ -120,7 +120,7 @@ var VideoEngager = function () {
 
 		oVideoEngager.subscribe('Callback.opened', function(e){
 			var AuthToken = null;
-			var date =  new Date();
+			var date = null;
 
 			//authenticate
 			var authURL = "https://staging.videoengager.com/api/partners/impersonate/b7abeb05-f821-cff8-0b27-77232116bf1d/639292ca-14a2-400b-8670-1f545d8aa860/slav@videoengager.com";
@@ -152,6 +152,9 @@ var VideoEngager = function () {
 			old_element.parentNode.replaceChild(new_element, old_element);
 			new_element.addEventListener("click", function(e) {
 				e.preventDefault();
+				if (!date){
+					date =  new Date();
+				}
 				var url = "https://staging.videoengager.com/api/schedules/my?sendNotificationEmail"
 				var json =  JSON.stringify(
 					{"pin":"3936",
