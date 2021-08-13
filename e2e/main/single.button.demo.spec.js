@@ -1,6 +1,13 @@
 'use strict';
 
 const { browser } = require("protractor");
+const axios = require('axios');
+
+var sessionId;
+var iframeElement;
+var data;
+var browser2;
+var withoutIframe;
 
 describe('single page demo', function() {
 
@@ -9,10 +16,18 @@ describe('single page demo', function() {
     browser.waitForAngularEnabled(false);
   });
   
+  var impersonateCreate = function () {
+    var url = "https://videome.leadsecure.com/api/partners/impersonateCreate" 
+    return axios.post(url ,{
+      pak: "9be78bc5-a721-9a9b-81a5-87858ddd0bb4",
+      email: "c4b553c3-ee42-4846-aeb1-f0da3d85058eslav@videoengager.com",
+      organizationId: "c4b553c3-ee42-4846-aeb1-f0da3d85058e",
+    });
+	}
 
-  var isPrecall = function() {
+  var isPrecall = function(browser) {
       return browser.driver
-        .findElement(By.id("videoPreview"))
+        .findElement(by.id("videoPreview"))
         .then(function(element){
           return true;
         }, function(err) {
@@ -21,21 +36,21 @@ describe('single page demo', function() {
       }); 
   };
 
-  var joinCall = function() {
+  var joinCall = function(browser) {
     return browser.driver
-      .findElement(By.id("joinConferenceButton"))
+      .findElement(by.id("joinConferenceButton"))
       .then(function(joinConferenceButton){
-        joinConferenceButton.click();
         return true;
       }, function(err) {
         //console.log(err)
         return false;
     }); 
 };
+ 
 
 var callEstablished = function(browser) {
   return browser.driver
-    .findElement(By.id("remoteVideo"))
+    .findElement(by.id("remoteVideo"))
     .then(function(remoteVideo){
       return true;
     }, function(err) {
@@ -44,71 +59,158 @@ var callEstablished = function(browser) {
   }); 
 };
 
- 
+var iframeCreated = function(browser) {
+  return browser.driver.findElement(by.id("videoengageriframe"))
+    .then( function(element){
+      iframeElement = element;
+      return iframeElement.getAttribute('src');
+    }, function(err) {
+      return false;
+    })
+    .then(function(iframeUrl){
+      sessionId = JSON.parse(Buffer.from(iframeUrl.split("&")[1].toString().substring(7), 'base64').toString() )["sessionId"];
+      return true;
+    }); 
+};
+
+var clickAgentRedButton = function(browser) {
+  return browser.driver
+    .findElement(by.id("hangupButton"))
+    .then(function(hangupButton){
+      hangupButton.click();
+      return true;
+    }, function(err) {
+      //console.log(err)
+      return false;
+  }); 
+};
+
+var confirmAgentDialog = function(browser) {
+  return browser.driver
+    .findElement(by.xpath("/html/body/div[19]/div[3]/div/button[1]"))
+    .then(function(confirmButton){
+      confirmButton.click();
+      return true;
+    }, function(err) {
+      //console.log(err)
+      return false;
+  }); 
+};
 
   //single page demo
   it('should open precall in single button demo page', async function() {
     var url = 'http://localhost:3000/single-button-genesys-demo.html';
-    await browser.get(url)
-    var startButton = await element(by.xpath('//*[@id="textoProntoseraAtendido"]'));
-    startButton.click();
-    var iframeElement = await browser.driver.findElement(By.id('videoengageriframe'))
-    var iframeUrl = await iframeElement.getAttribute('src')
-    var sessionId = JSON.parse(Buffer.from(iframeUrl.split("&")[1].toString().substring(7), 'base64').toString() )["sessionId"];
-    browser.driver.wait(browser.switchTo().frame(iframeElement), 3000);  
-    browser.driver.wait(isPrecall, 3000);  
-    browser.driver.sleep(1000);
-    browser.driver.wait(joinCall, 3000);  
-    //start second browser
-    var browser2 = browser.forkNewDriverInstance();
-    browser2.waitForAngularEnabled(false);
-    var url2 = "https://videome.leadsecure.com/static/agent.popup.cloud.html?params=eyJsb2NhbGUiOiJlbl9VUyJ9&interaction=1&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1Zjk2YTc5ZTJmYjk4YzUzNzA0YTg2NGIiLCJwYWsiOiI5YmU3OGJjNS1hNzIxLTlhOWItODFhNS04Nzg1OGRkZDBiYjQiLCJpYXQiOjE2MjgwODk2NTQsImV4cCI6MTYzMDY4MTY1NH0.yTX6o7Iu2AX-u0z8ztb8xJy87psKme3Dcd1Bo4s4D7g&sk=true&conferenceId=NreayRaSS0rF&isPopup=false&invitationId=" + sessionId
-    await browser2.get(url2);
-    await browser2.driver.wait(callEstablished(browser2), 5000);
-    await browser2.wait(async function() {
-      return await browser2.driver.executeScript(
-        "return (window.document.querySelector('#remoteVideo') && "+
-        "(window.document.querySelector('#remoteVideo').srcObject != null) && " +
-        "(window.document.querySelector('#localVideo') && " + 
-        "(window.document.querySelector('#localVideo').srcObject != null)")
-      .then(async function(result) {
-        if (result){
-          // frame > 0 case
-          console.log("result" + result);
-          //console.log("result" + await browser2.driver.executeScript("return window.document.querySelector('#remoteVideo').webkitDecodedFrameCount"));
-          return true;
-        } 
-        // null or frame < 0 case
-        console.log("false" + false);
-        return false;
-      } , function(err) {
-        //error case
-        //console.log("err" + err);
-        return false;
-      }); 
-    }, 30000);
-    await browser.wait(async function() {
-      return await browser.driver.executeScript(
-        "return (window.document.querySelector('#remoteVideo') && "+
-        "(window.document.querySelector('#remoteVideo').srcObject != null) && " +
-        "(window.document.querySelector('#localVideo') && " + 
-        "(window.document.querySelector('#localVideo').srcObject != null)")
-      .then(async function(result) {
-        if (result){
-          // frame > 0 case
-          console.log("result" + result);
-          //console.log("result" + await browser2.driver.executeScript("return window.document.querySelector('#remoteVideo').webkitDecodedFrameCount"));
-          return true;
-        } 
-        // null or frame < 0 case
-        console.log("false" + false);
-        return false;
-      } , function(err) {
-        //error case
-        //console.log("err" + err);
-        return false;
-      }); 
-    }, 30000);
-  });
+    browser.driver.get(url)
+    .then(function(){
+      return browser.driver.executeScript("CXBus.command('VideoEngager.startVideoEngager')")
+    })
+    .then(function(){
+      return browser.driver.wait(iframeCreated(browser), 3000);
+    })
+    .then(function(){
+      withoutIframe = browser;
+      return browser.switchTo().frame(iframeElement);
+    })
+    .then(function(){
+      return browser.driver.wait(isPrecall(browser), 3000);
+    })
+    .then(function(){
+      return browser.driver.wait(joinCall(browser), 3000);  
+    })
+    .then(function(){
+      return impersonateCreate()
+    })
+    .then(async function  (res) {
+      data = res;
+      browser2 = await browser.forkNewDriverInstance();
+      return browser2.waitForAngularEnabled(false);
+    })
+    .then(function(){
+      browser2.ignoreSynchronization = true
+      var url2 = "https://videome.leadsecure.com/static/agent.popup.cloud.html"+
+      "?params=eyJsb2NhbGUiOiJlbl9VUyJ9"+
+      "&interaction=1" + 
+      "&token="+ data.data.token +
+      "&sk=true"+
+      "&isPopup=false"+
+      "&invitationId=" + sessionId;
+      browser2.get(url2);
+        return browser.driver.executeScript(`document.getElementById('joinConferenceButton').click(); `);
+      })
+    .then(function (res) {
+      return browser2.driver.wait(callEstablished(browser2), 5000);
+    })
+    .then(function (res) {
+      return browser2.wait( function() {
+        return browser2.driver.executeScript(
+          "return (window.document.querySelector('#remoteVideo') && (window.document.querySelector('#remoteVideo').srcObject != null) && (window.document.querySelector('#localVideo') && (window.document.querySelector('#localVideo').srcObject != null)))")
+        .then(async function(result) {
+          if (result){
+            return true;
+          } 
+          return false;
+        } , function(err) {
+          return false;
+        }); 
+      }, 15000);
+    })  
+    .then(function (res) {
+      // verify visitor page video - should connect in 15 sec
+      return browser.wait( function() {
+        return browser.driver.executeScript(
+          "return (window.document.querySelector('.sourcevideo') && (window.document.querySelector('.sourcevideo').srcObject != null) && (window.document.querySelector('.localvideo') && (window.document.querySelector('.localvideo').srcObject != null)))")
+        .then(async function(result) {
+          if (result){
+            return true;
+          } 
+          console.log("false" + false);
+          return false;
+        } , function(err) {
+          return false;
+        }); 
+      }, 15000);
+    })
+    .then(async function (res) {
+      //terminate agent page
+      await browser2.driver.wait(clickAgentRedButton(browser2), 3000);  
+      await browser2.driver.wait(confirmAgentDialog(browser2), 30000);  
 
+      //verify initial state in agent
+      await browser2.driver.wait(isPrecall(browser2), 3000);  
+
+      await browser.driver.wait(browser.switchTo().defaultContent(), 3000); 
+
+      //check any ifame in visitor page
+      await browser.wait(async function() {
+        return await browser.driver.executeScript(
+          "return (window.document.querySelector('iframe'))")
+        .then(async function(result) {
+          if (result){
+            return true;
+          } 
+          console.log("false" + false);
+          return false;
+        } , function(err) {
+          return false;
+        }); 
+      }, 15000);
+      
+      await browser.wait(async function() {
+        return await browser.driver.executeScript(
+          "return (window.document.querySelector('iframe') == null)")
+        .then(async function(result) {
+          if (result === true){
+            return true;
+          } 
+          console.log("false" + false);
+          return false;
+        } , function(err) {
+          return false;
+        }); 
+      }, 15000);
+
+    })
+    
+  
+  });
 });
