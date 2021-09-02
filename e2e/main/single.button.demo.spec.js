@@ -151,7 +151,7 @@ var confirmAgentDialog = function(browser) {
       console.log("verifying customer page video streams.");
       return browser2.wait( function() {
         return browser2.driver.executeScript(
-          "return (window.document.querySelector('#remoteVideo') && (window.document.querySelector('#remoteVideo').srcObject != null) && (window.document.querySelector('#localVideo') && (window.document.querySelector('#localVideo').srcObject != null)))")
+          "return ( (window.document.querySelector('#remoteVideo') != null) && ( window.document.querySelector('#localVideo') != null))")
         .then(async function(result) {
           if (result){
             console.log("customer page video verificiation succeed");
@@ -168,7 +168,7 @@ var confirmAgentDialog = function(browser) {
       console.log("verifying agent page video streams.");
       return browser.wait( function() {
         return browser.driver.executeScript(
-          "return (window.document.querySelector('.sourcevideo') && (window.document.querySelector('.sourcevideo').srcObject != null) && (window.document.querySelector('.localvideo') && (window.document.querySelector('.localvideo').srcObject != null)))")
+          "return ((window.document.querySelector('.sourcevideo') != null) && (window.document.querySelector('.localvideo') != null))")
         .then(async function(result) {
           if (result){
             console.log("agent page video verificiation succeed");
