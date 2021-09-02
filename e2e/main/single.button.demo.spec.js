@@ -75,12 +75,10 @@ var iframeCreated = function(browser) {
 
 var clickAgentRedButton = function(browser) {
   return browser.driver
-    .findElement(by.id("hangupButton"))
-    .then(function(hangupButton){
-      hangupButton.click();
+    .executeScript(`document.getElementById('hangupButton').click();`)
+    .then(function(){
       return true;
     }, function(err) {
-      //console.log(err)
       return false;
   }); 
 };
