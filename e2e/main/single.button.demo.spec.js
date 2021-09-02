@@ -135,17 +135,26 @@ var confirmAgentDialog = function(browser) {
       "&isPopup=false"+
       "&invitationId=" + sessionId;
       browser2.get(url2);
-        return browser.driver.executeScript(`document.getElementById('joinConferenceButton').click(); `);
-      })
-    .then(function (res) {
-      return browser2.driver.wait(callEstablished(browser2), 5000);
+      return browser.driver.executeScript(`return (document.getElementById('joinConferenceButton') == null)`);
+    })
+    .then(async function (res) {
+      if(res){
+        console.log("precall not enabled");
+        return browser2.driver.wait(callEstablished(browser2), 5000);
+      } else {
+        console.log("precall enabled");
+        await browser.driver.executeScript(`document.getElementById('joinConferenceButton').click(); `);
+        return browser2.driver.wait(callEstablished(browser2), 5000);
+      }
     })
     .then(function (res) {
+      console.log("verifying customer page video streams.");
       return browser2.wait( function() {
         return browser2.driver.executeScript(
           "return (window.document.querySelector('#remoteVideo') && (window.document.querySelector('#remoteVideo').srcObject != null) && (window.document.querySelector('#localVideo') && (window.document.querySelector('#localVideo').srcObject != null)))")
         .then(async function(result) {
           if (result){
+            console.log("customer page video verificiation succeed");
             return true;
           } 
           return false;
@@ -156,14 +165,15 @@ var confirmAgentDialog = function(browser) {
     })  
     .then(function (res) {
       // verify visitor page video - should connect in 15 sec
+      console.log("verifying agent page video streams.");
       return browser.wait( function() {
         return browser.driver.executeScript(
           "return (window.document.querySelector('.sourcevideo') && (window.document.querySelector('.sourcevideo').srcObject != null) && (window.document.querySelector('.localvideo') && (window.document.querySelector('.localvideo').srcObject != null)))")
         .then(async function(result) {
           if (result){
+            console.log("agent page video verificiation succeed");
             return true;
           } 
-          console.log("false" + false);
           return false;
         } , function(err) {
           return false;
@@ -172,6 +182,7 @@ var confirmAgentDialog = function(browser) {
     })
     .then(async function (res) {
       //terminate agent page
+      console.log("terminate session by closing agent page");
       await browser2.driver.wait(clickAgentRedButton(browser2), 3000);  
       await browser2.driver.wait(confirmAgentDialog(browser2), 30000);  
 
@@ -181,28 +192,15 @@ var confirmAgentDialog = function(browser) {
       await browser.driver.wait(browser.switchTo().defaultContent(), 3000); 
 
       //check any ifame in visitor page
-      await browser.wait(async function() {
-        return await browser.driver.executeScript(
-          "return (window.document.querySelector('iframe'))")
-        .then(async function(result) {
-          if (result){
-            return true;
-          } 
-          console.log("false" + false);
-          return false;
-        } , function(err) {
-          return false;
-        }); 
-      }, 15000);
-      
+
       await browser.wait(async function() {
         return await browser.driver.executeScript(
           "return (window.document.querySelector('iframe') == null)")
-        .then(async function(result) {
+        .then(function(result) {
           if (result === true){
+            console.log("iframe removed in single button page after session termination");
             return true;
           } 
-          console.log("false" + false);
           return false;
         } , function(err) {
           return false;
