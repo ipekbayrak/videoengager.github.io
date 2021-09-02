@@ -15,7 +15,7 @@ install:
   - npm install
 
 before_script:
-  - npm install
+  - webdriver-manager update
   - npm run-script webdriver
 script:
   - npm test
