@@ -31,8 +31,9 @@ var config = {
   // https://code.google.com/p/selenium/source/browse/javascript/webdriver/capabilities.js
   capabilities: {
     'browserName': 'chrome',
+    'unexpectedAlertBehaviour': 'accept',
     'chromeOptions': { 
-      args: [ 
+      args: [  
         "--disable-gpu", 
         "--window-size=800,600", 
         "--use-fake-ui-media-stream", 
@@ -73,7 +74,27 @@ var config = {
 if (process.env.TRAVIS) {
     config.capabilities = {
     'browserName': 'chrome',
-    'chromeOptions': { args: [ "--disable-gpu", "--window-size=800,600", "--use-fake-ui-media-stream", "--use-fake-device-for-media-stream"] }
+    'unexpectedAlertBehaviour': 'accept',
+    'chromeOptions': { 
+		  args: [ 
+			"--headless",
+			"--disable-gpu", 
+			"--window-size=800,600", 
+			"--use-fake-ui-media-stream", 
+			"--use-fake-device-for-media-stream", 
+			"--disable-web-security", 
+			"--disable-infobars", 
+			"start-maximized", 
+			"--disable-extensions"
+		  ],
+		  prefs: {
+			'VideoCaptureAllowedUrls': ['http://localhost'],
+			"profile.default_content_setting_values.media_stream_mic": 1, 
+			"profile.default_content_setting_values.media_stream_camera": 1,
+			"profile.default_content_setting_values.geolocation": 1, 
+			"profile.default_content_setting_values.notifications": 1 
+		  }
+	  }
    }
 }
 exports.config = config;
