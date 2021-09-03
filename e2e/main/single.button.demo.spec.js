@@ -73,17 +73,21 @@ var iframeCreated = function(browser) {
     }); 
 };
 
+
 var clickAgentRedButton = function(browser) {
+  console.log("wait 10 sec for connection establishment");
+  browser.driver.sleep(10000);
+
   return browser.driver
-    .findElement(by.id("hangupButton"))
-    .then(function(hangupButton){
-      hangupButton.click();
+    .executeScript(`document.querySelector('#hangupButton').click();`)
+    .then(function(res){
       return true;
     }, function(err) {
-      //console.log(err)
       return false;
   }); 
 };
+
+
 
 var confirmAgentDialog = function(browser) {
   return browser.driver
@@ -102,6 +106,7 @@ var confirmAgentDialog = function(browser) {
     var url = 'http://localhost:3000/single-button-genesys-demo.html';
     browser.driver.get(url)
     .then(function(){
+      browser.driver.manage().window().maximize();
       return browser.driver.executeScript("CXBus.command('VideoEngager.startVideoEngager')")
     })
     .then(function(){
@@ -123,6 +128,8 @@ var confirmAgentDialog = function(browser) {
     .then(async function  (res) {
       data = res;
       browser2 = await browser.forkNewDriverInstance();
+      browser2.driver.manage().window().maximize();
+
       return browser2.waitForAngularEnabled(false);
     })
     .then(function(){
@@ -151,7 +158,7 @@ var confirmAgentDialog = function(browser) {
       console.log("verifying customer page video streams.");
       return browser2.wait( function() {
         return browser2.driver.executeScript(
-          "return (window.document.querySelector('#remoteVideo') && (window.document.querySelector('#remoteVideo').srcObject != null) && (window.document.querySelector('#localVideo') && (window.document.querySelector('#localVideo').srcObject != null)))")
+          "return (window.document.querySelector('#remoteVideo') && (window.document.querySelector('#remoteVideo') != null) && (window.document.querySelector('#localVideo') && (window.document.querySelector('#localVideo') != null)))")
         .then(async function(result) {
           if (result){
             console.log("customer page video verificiation succeed");
@@ -168,8 +175,8 @@ var confirmAgentDialog = function(browser) {
       console.log("verifying agent page video streams.");
       return browser.wait( function() {
         return browser.driver.executeScript(
-          "return (window.document.querySelector('.sourcevideo') && (window.document.querySelector('.sourcevideo').srcObject != null) && (window.document.querySelector('.localvideo') && (window.document.querySelector('.localvideo').srcObject != null)))")
-        .then(async function(result) {
+          "return (window.document.querySelector('.sourcevideo') && (window.document.querySelector('.sourcevideo') != null) && (window.document.querySelector('.localvideo') && (window.document.querySelector('.localvideo') != null)))")
+        .then(function(result) {
           if (result){
             console.log("agent page video verificiation succeed");
             return true;
@@ -180,20 +187,25 @@ var confirmAgentDialog = function(browser) {
         }); 
       }, 15000);
     })
-    .then(async function (res) {
+    .then(function () {
       //terminate agent page
       console.log("terminate session by closing agent page");
-      await browser2.driver.wait(clickAgentRedButton(browser2), 3000);  
-      await browser2.driver.wait(confirmAgentDialog(browser2), 30000);  
-
+      return browser2.driver.wait(clickAgentRedButton(browser2),16000);
+    })
+    .then(function () {
+      return browser2.driver.wait(confirmAgentDialog(browser2), 30000)
+    })
+    .then(function () {
       //verify initial state in agent
-      await browser2.driver.wait(isPrecall(browser2), 3000);  
+      return browser2.driver.wait(isPrecall(browser2), 3000);  
+    })
+    .then(function (res) {
 
-      await browser.driver.wait(browser.switchTo().defaultContent(), 3000); 
-
-      //check any ifame in visitor page
-
-      await browser.wait(async function() {
+      return browser.driver.wait(browser.switchTo().defaultContent(), 3000); 
+    })
+    .then(function (res) {
+    //check any ifame in visitor page
+    return browser.wait(async function() {
         return await browser.driver.executeScript(
           "return (window.document.querySelector('iframe') == null)")
         .then(function(result) {
@@ -206,7 +218,9 @@ var confirmAgentDialog = function(browser) {
           return false;
         }); 
       }, 15000);
-
+    })
+    .then(function () {
+      console.log("done");
     })
     
   
