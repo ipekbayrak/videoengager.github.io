@@ -90,8 +90,8 @@ var clickAgentRedButton = function(browser) {
 
 
 var confirmAgentDialog = function(browser) {
-  return browser.driver
-    .findElement(by.xpath("/html/body/div[19]/div[3]/div/button[1]"))
+  return browser.driver 
+    .findElement(by.xpath("/html/body/div[17]/div[3]/div/button[1]"))
     .then(function(confirmButton){
       confirmButton.click();
       return true;
