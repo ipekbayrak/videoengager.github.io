@@ -29,7 +29,16 @@ var config = {
   // https://code.google.com/p/selenium/wiki/DesiredCapabilities
   // and
   // https://code.google.com/p/selenium/source/browse/javascript/webdriver/capabilities.js
-  capabilities: {
+  multiCapabilities: [{
+    'browserName': 'firefox',
+    'moz:firefoxOptions': {
+      'args': ["--disable-gpu",'--safe-mode'], // "--headless"
+      prefs: {
+        "media.navigator.permission.disabled": true,
+        "media.navigator.streams.fake": true
+      }
+    }
+  },  {
     'browserName': 'chrome',
     'unexpectedAlertBehaviour': 'accept',
     'chromeOptions': { 
@@ -41,7 +50,8 @@ var config = {
         "--disable-web-security", 
         "--disable-infobars", 
         "start-maximized", 
-        "--disable-extensions"
+        "--disable-extensions",
+        "disable-infobars"
       ],
       prefs: {
         'VideoCaptureAllowedUrls': ['http://localhost'],
@@ -51,7 +61,7 @@ var config = {
         "profile.default_content_setting_values.notifications": 1 
       }
   }
-  },
+  }],
 
   // ----- The test framework -----
   //
@@ -72,29 +82,43 @@ var config = {
 };
 // exports.config.capabilities.chromeOptions.binary = __dirname + '/chrome-linux/chrome';
 if (process.env.TRAVIS) {
-    config.capabilities = {
-    'browserName': 'chrome',
-    'unexpectedAlertBehaviour': 'accept',
-    'chromeOptions': { 
-		  args: [ 
-			"--headless",
-			"--disable-gpu", 
-			"--window-size=800,600", 
-			"--use-fake-ui-media-stream", 
-			"--use-fake-device-for-media-stream", 
-			"--disable-web-security", 
-			"--disable-infobars", 
-			"start-maximized", 
-			"--disable-extensions"
-		  ],
-		  prefs: {
-			'VideoCaptureAllowedUrls': ['http://localhost'],
-			"profile.default_content_setting_values.media_stream_mic": 1, 
-			"profile.default_content_setting_values.media_stream_camera": 1,
-			"profile.default_content_setting_values.geolocation": 1, 
-			"profile.default_content_setting_values.notifications": 1 
-		  }
-	  }
-   }
+    config.multiCapabilities = [{
+      'browserName': 'firefox',
+      'moz:firefoxOptions': {
+        'args': [
+          "--disable-gpu",
+          '--safe-mode',
+        	"--headless"
+        ], 
+        prefs: {
+          "media.navigator.permission.disabled": true,
+          "media.navigator.streams.fake": true
+        }
+      }
+    },  {
+      'browserName': 'chrome',
+      'unexpectedAlertBehaviour': 'accept',
+      'chromeOptions': { 
+        args: [
+          "--headless",
+          "--disable-gpu", 
+          "--window-size=800,600", 
+          "--use-fake-ui-media-stream", 
+          "--use-fake-device-for-media-stream", 
+          "--disable-web-security", 
+          "--disable-infobars", 
+          "start-maximized", 
+          "--disable-extensions",
+          "disable-infobars"
+        ],
+        prefs: {
+          'VideoCaptureAllowedUrls': ['http://localhost'],
+          "profile.default_content_setting_values.media_stream_mic": 1, 
+          "profile.default_content_setting_values.media_stream_camera": 1,
+          "profile.default_content_setting_values.geolocation": 1, 
+          "profile.default_content_setting_values.notifications": 1 
+        }
+    }
+    }]
 }
 exports.config = config;
